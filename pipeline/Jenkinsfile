@@ -1,0 +1,49 @@
+pipeline {
+    agent none
+    stages {
+        stage('Build') {
+            agent {
+                docker {
+                    image 'python:3.8-alpine3.16'
+                }
+            }
+            steps {
+                sh 'python3.8 -m py_compile src/prog.py src/calc.py'
+                stash(name: 'compiled-results', includes: 'src/*.py*')
+            }
+        }
+        stage('Test') {
+            agent {
+                docker {
+                    image 'grihabor/pytest'
+                }
+            }
+            steps {
+                sh 'pytest -v --junit-xml test-reports/results.xml src/test_calc.py'
+            }
+            post {
+                always {
+                    junit "test-reports/results.xml"
+                }
+            }
+        }
+        stage('Deliver') {
+            agent any
+            environment {
+                VOLUME = '$(pwd)/src:/src'
+                IMAGE = 'cdrx/pyinstaller-linux'
+            }
+            steps {
+                dir(path: env.BUILD_ID) {
+                    unstash(name: 'compiled-results')
+                    sh "docker run --rm -v ${VOLUME} ${IMAGE} 'pyinstaller -F prog.py'"
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts "${env.BUILD_ID}/src/dist/prog"
+                }
+            }
+        }
+    }
+}
