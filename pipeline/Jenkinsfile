@@ -1,6 +1,12 @@
 pipeline {
     agent none
     stages {
+        stage('Checkout') {
+            agent any
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/rondondaniel/python-jenkins-pipeline.git']])
+            }
+        }
         stage('Build') {
             agent {
                 docker {
@@ -27,21 +33,17 @@ pipeline {
                 }
             }
         }
-        stage('Deliver') {
-            agent any
-            environment {
-                VOLUME = '$(pwd)/src:/src'
-                IMAGE = 'cdrx/pyinstaller-linux'
+    stage('Push Docker Image') {
+        agent any
+        environment {
+            DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+                IMAGE_NAME = 'dronemodel/calc:latest'
             }
             steps {
-                dir(path: env.BUILD_ID) {
-                    unstash(name: 'compiled-results')
-                    sh "docker run --rm -v ${VOLUME} ${IMAGE} 'pyinstaller -F prog.py'"
-                }
-            }
-            post {
-                success {
-                    archiveArtifacts "${env.BUILD_ID}/src/dist/prog"
+                script {
+                    sh 'docker build -t $IMAGE_NAME src'
+                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                    sh 'docker push $IMAGE_NAME'
                 }
             }
         }
