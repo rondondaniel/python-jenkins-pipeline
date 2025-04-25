@@ -1,5 +1,5 @@
 # Python Jenkins Pipeline Calculator
-
+This repository demonstrates a simple Python calculator project integrated with a Jenkins CI/CD pipeline. The project is designed for educational purposes, showing how to automate Python application build, test, and Docker image publishing using Jenkins pipelines.
 ## Repository Structure
 * Dockerfile: Builds a Jenkins environment with Docker CLI and required plugins.
 * docker-compose.yml: Used to orchestrate Jenkins and other services.
