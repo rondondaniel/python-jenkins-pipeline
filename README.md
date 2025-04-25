@@ -2,14 +2,14 @@
 
 ## Repository Structure
 * Dockerfile: Builds a Jenkins environment with Docker CLI and required plugins.
-* docker-compose.yml: (If present) Used to orchestrate Jenkins and other services.
+* docker-compose.yml: Used to orchestrate Jenkins and other services.
 * pipeline/: Contains the calculator source code, unit tests, and Jenkins pipeline configuration.
-* Jenkinsfile: Defines the Jenkins pipeline stages (clone, build, test, push).
+* pipeline/Jenkinsfile: Defines the Jenkins pipeline stages (clone, build, test, push).
 * src/: Python source code and tests.
     * calc.py: Calculator logic (add, subtract, multiply, divide).
     * prog.py: Entry point for running the calculator.
     * test_calc.py: Unit tests for the calculator.
-    * Dockerfile: (If present) Dockerization for the Python app.
+    * Dockerfile: Dockerization for the Python app.
 
 ## Getting Started
 
